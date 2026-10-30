@@ -2,6 +2,8 @@
 
 A university-level Learning Management System with three roles — **Admin**, **Teacher** and **Student**.
 
+**Repository:** https://github.com/laskshithnirmal/NEXZORA-LMS
+
 | Layer     | Technology                                  |
 |-----------|---------------------------------------------|
 | Frontend  | React 18 + Vite 5, Tailwind CSS, React Router |
@@ -58,6 +60,16 @@ LMS-Project/
 - **Node.js 18+** (`node -v`)
 - **MySQL 8** running locally, and its root (or another user's) password
 - Maven is **not** required — the included `mvnw.cmd` wrapper downloads it automatically
+
+## Get the code
+
+```bash
+git clone https://github.com/laskshithnirmal/NEXZORA-LMS.git
+cd NEXZORA-LMS
+```
+
+The repository is private: Git will open a GitHub sign-in in your browser the first time.
+You need to be the owner or an invited collaborator.
 
 ## MySQL setup
 
