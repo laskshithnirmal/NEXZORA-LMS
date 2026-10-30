@@ -39,6 +39,9 @@ LMS-Project/
 │   ├── src/test/             End-to-end API tests (H2 in-memory DB)
 │   ├── .env.example          Template for your local secrets
 │   └── mvnw / mvnw.cmd       Maven wrapper
+├── start-all.cmd             Windows: start backend + frontend
+├── start-backend.cmd         Windows: start backend only
+├── start-frontend.cmd        Windows: start frontend only
 ├── frontend/                 React + Vite app
 │   └── src/
 │       ├── api/              Axios client (JWT header, error helpers)
@@ -53,9 +56,76 @@ LMS-Project/
 
 - **Java 17+** (`java -version`)
 - **Node.js 18+** (`node -v`)
-- **MySQL 8** running locally
+- **MySQL 8** running locally, and its root (or another user's) password
+- Maven is **not** required — the included `mvnw.cmd` wrapper downloads it automatically
 
-## Setup
+## MySQL setup
+
+The app only needs a MySQL login — it creates the `nexzora_lms` database and all six tables
+(`users`, `classes`, `enrollments`, `learning_materials`, `announcements`, `payments`) by itself.
+
+**Check that your password works** (Command Prompt):
+
+```bat
+"C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" -u root -p -e "SELECT VERSION();"
+```
+
+Enter your password when asked. If it prints a version number, use the same username and password in
+`backend\.env`.
+
+**Optional — use a dedicated MySQL user instead of root:**
+
+```sql
+CREATE DATABASE IF NOT EXISTS nexzora_lms CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'nexzora'@'localhost' IDENTIFIED BY 'choose_a_password';
+GRANT ALL PRIVILEGES ON nexzora_lms.* TO 'nexzora'@'localhost';
+```
+
+Then set `DB_USERNAME=nexzora` and `DB_PASSWORD=choose_a_password` in `backend\.env`.
+
+**After the first start**, you can confirm the tables were created:
+
+```bat
+"C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" -u root -p -e "SHOW TABLES FROM nexzora_lms;"
+```
+
+## Environment configuration (`backend\.env`)
+
+| Variable | Meaning | Default |
+|----------|---------|---------|
+| `DB_HOST`, `DB_PORT`, `DB_NAME` | MySQL location and database name | `localhost`, `3306`, `nexzora_lms` |
+| `DB_USERNAME`, `DB_PASSWORD` | MySQL login | `root`, *(empty)* |
+| `JWT_SECRET` | Key used to sign login tokens — at least 32 characters | random on each start |
+| `ADMIN_EMAIL`, `ADMIN_PASSWORD` | First admin account (created only if no admin exists) | `admin@nexzora.lk`, `Admin@123` |
+| `SEED_DEMO_DATA` | Create the demo teacher, student and classes on first start | `true` |
+| `UPLOAD_DIR` | Folder for uploaded PDFs | `uploads` |
+| `SERVER_PORT` | Backend port | `8080` |
+| `CORS_ORIGINS` | Allowed frontend origins | `http://localhost:5173` |
+
+Write values without quotes or spaces around `=`.
+
+## Quick start on Windows
+
+1. **Make sure MySQL is running.** Open *Services* (`services.msc`) and check that **MySQL80** is *Running*.
+2. **Set your MySQL password.** Copy `backend\.env.example` to `backend\.env` (if it doesn't exist yet),
+   open it in Notepad and fill in:
+   ```properties
+   DB_USERNAME=root
+   DB_PASSWORD=your_mysql_password
+   JWT_SECRET=any_random_text_at_least_32_characters_long
+   ```
+3. **Double-click `start-all.cmd`** in the project folder. Two windows open — one for the backend,
+   one for the frontend.
+4. When the backend window shows `Started NexzoraLmsApplication`, open **http://localhost:5173**
+   and log in as `admin@nexzora.lk` / `Admin@123`.
+
+You do not need to create the database: `nexzora_lms` and all tables are created automatically on
+the first start. The **first** start downloads Maven and the backend libraries (a few minutes);
+later starts take about 15 seconds.
+
+`backend\.env` is git-ignored, so your password is never committed.
+
+## Manual setup (any OS)
 
 ### 1. Configure the backend
 
@@ -64,17 +134,7 @@ cd backend
 cp .env.example .env        # Windows PowerShell: Copy-Item .env.example .env
 ```
 
-Edit `backend/.env` and set at least:
-
-```properties
-DB_USERNAME=root
-DB_PASSWORD=your_mysql_password
-JWT_SECRET=a_long_random_string_of_at_least_32_characters
-ADMIN_PASSWORD=choose_a_strong_password
-```
-
-`.env` is git-ignored, so your credentials are never committed.
-The database `nexzora_lms` and all tables are created automatically on first start.
+Edit `backend/.env` and set at least `DB_PASSWORD`, `JWT_SECRET` and `ADMIN_PASSWORD`.
 
 ### 2. Start the backend (port 8080)
 
@@ -83,17 +143,28 @@ cd backend
 ./mvnw spring-boot:run      # Windows: mvnw.cmd spring-boot:run
 ```
 
-The first run downloads Maven and the dependencies, so it can take a few minutes.
+Run this from inside the `backend` folder — that's where the backend looks for `.env`.
 
 ### 3. Start the frontend (port 5173)
 
 ```bash
 cd frontend
-npm install
+npm install                 # first time only
 npm run dev
 ```
 
-Open **http://localhost:5173**. The Vite dev server proxies `/api` to the backend.
+Open **http://localhost:5173**. The Vite dev server forwards `/api` requests to the backend.
+
+## Troubleshooting
+
+| Problem | Fix |
+|---------|-----|
+| `Access denied for user 'root'@'localhost'` | Wrong or missing `DB_PASSWORD` in `backend\.env`. |
+| `Communications link failure` | MySQL isn't running — start the **MySQL80** service. |
+| Login page says *Cannot reach the server* | The backend isn't running or is still starting. |
+| `Port 8080 was already in use` | Close the other program, or set `SERVER_PORT=8081` in `.env` and start the frontend with `set VITE_BACKEND_URL=http://localhost:8081` first. |
+| Logged out after restarting the backend | `JWT_SECRET` is empty in `.env`, so a new random key is used on every start. Set it. |
+| Password contains a backslash `\` | `.env` is read as a Java properties file — write each `\` as `\\`. |
 
 ## Default accounts
 

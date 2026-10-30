@@ -5,7 +5,7 @@ import api, { errorMessage, fieldErrors } from '../../api/client'
 import { ConfirmDialog, EmptyState, Field, Input, Modal, PageHeader, PageLoader, SearchInput, Select, Spinner } from '../../components/ui'
 import PaymentStatusBadge from '../../components/PaymentStatusBadge'
 import { useApi } from '../../hooks/useApi'
-import { formatDate, formatMoney } from '../../utils/format'
+import { formatDate, formatMoney, todayIso } from '../../utils/format'
 import { rules, validate } from '../../utils/validate'
 
 const METHODS = ['Cash', 'Bank Transfer', 'Card', 'Online', 'Cheque']
@@ -173,7 +173,7 @@ function PaymentForm({ payment, students, classes, onClose, onSaved }) {
     method: payment.method || 'Cash',
     reference: payment.reference || '',
     description: payment.description || '',
-    paymentDate: payment.paymentDate || new Date().toISOString().slice(0, 10),
+    paymentDate: payment.paymentDate || todayIso(),
   })
   const [errors, setErrors] = useState({})
   const [busy, setBusy] = useState(false)

@@ -56,7 +56,12 @@ public class MaterialService {
         m.setFileName(file.getOriginalFilename());
         m.setFileSize(file.getSize());
         m.setUploadedBy(teacher);
-        return MaterialDto.from(materialRepository.save(m));
+        try {
+            return MaterialDto.from(materialRepository.saveAndFlush(m));
+        } catch (RuntimeException e) {
+            fileStorage.delete(stored); // don't leave an orphaned file behind
+            throw e;
+        }
     }
 
     @Transactional

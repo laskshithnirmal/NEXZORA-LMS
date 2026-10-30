@@ -30,8 +30,12 @@ api.interceptors.response.use(
 
 /** Human-readable message from an API error. */
 export function errorMessage(error, fallback = 'Something went wrong') {
-  if (!error.response) return 'Cannot reach the server. Is the backend running?'
-  return error.response.data?.message || fallback
+  const { response } = error
+  // No response, or a bare 5xx from the Vite dev proxy, means the backend is not reachable.
+  if (!response || (response.status >= 500 && !response.data?.message)) {
+    return 'Cannot reach the server. Is the backend running?'
+  }
+  return response.data?.message || fallback
 }
 
 /** Field-level validation errors returned by the backend, if any. */
