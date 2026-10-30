@@ -107,7 +107,10 @@ Write values without quotes or spaces around `=`.
 ## Quick start on Windows
 
 1. **Make sure MySQL is running.** Open *Services* (`services.msc`) and check that **MySQL80** is *Running*.
-2. **Set your MySQL password.** Copy `backend\.env.example` to `backend\.env` (if it doesn't exist yet),
+2. **Set your MySQL password.** Easiest: in PowerShell run
+   `powershell -ExecutionPolicy Bypass -File .\set-db-password.ps1` from the project folder — it asks
+   for the password in a hidden prompt, tests it against MySQL and saves it to `backend\.env`.
+   Or do it by hand: copy `backend\.env.example` to `backend\.env` (if it doesn't exist yet),
    open it in Notepad and fill in:
    ```properties
    DB_USERNAME=root
