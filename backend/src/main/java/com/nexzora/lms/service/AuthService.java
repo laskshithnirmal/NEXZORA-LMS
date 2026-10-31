@@ -15,6 +15,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.nexzora.lms.util.TextUtils.trimToNull;
+
 @Service
 public class AuthService {
 
@@ -49,13 +51,9 @@ public class AuthService {
         user.setFullName(req.fullName().trim());
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(req.password()));
-        user.setPhone(blankToNull(req.phone()));
+        user.setPhone(trimToNull(req.phone()));
         user.setRole(Role.STUDENT);
         userRepository.save(user);
         return new AuthResponse(jwtService.generateToken(user), UserDto.from(user));
-    }
-
-    static String blankToNull(String s) {
-        return s == null || s.isBlank() ? null : s.trim();
     }
 }

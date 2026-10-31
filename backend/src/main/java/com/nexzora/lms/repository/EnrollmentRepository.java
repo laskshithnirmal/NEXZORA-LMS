@@ -11,6 +11,8 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
 
     List<Enrollment> findAllByOrderByEnrolledAtDesc();
 
+    List<Enrollment> findTop5ByOrderByEnrolledAtDesc();
+
     List<Enrollment> findByStudentIdOrderByEnrolledAtDesc(Long studentId);
 
     List<Enrollment> findByCourseClassIdOrderByEnrolledAtDesc(Long classId);

@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Map;
 
 /** All endpoints here require ROLE_TEACHER. Class-level ownership is checked in the services. */
 @RestController
@@ -36,7 +35,7 @@ public class TeacherController {
     }
 
     @GetMapping("/dashboard")
-    public Map<String, Object> dashboard() {
+    public TeacherDashboardDto dashboard() {
         return dashboardService.teacher(CurrentUser.get());
     }
 

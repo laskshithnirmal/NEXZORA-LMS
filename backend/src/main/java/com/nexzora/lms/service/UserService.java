@@ -6,14 +6,13 @@ import com.nexzora.lms.entity.Role;
 import com.nexzora.lms.entity.User;
 import com.nexzora.lms.exception.ApiException;
 import com.nexzora.lms.repository.*;
-import com.nexzora.lms.security.CurrentUser;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static com.nexzora.lms.service.AuthService.blankToNull;
+import static com.nexzora.lms.util.TextUtils.trimToNull;
 
 /** Admin management of student and teacher accounts. */
 @Service
@@ -81,9 +80,9 @@ public class UserService {
     }
 
     @Transactional
-    public void delete(Long id) {
+    public void delete(Long id, User actingAdmin) {
         User user = userRepository.findById(id).orElseThrow(() -> ApiException.notFound("User"));
-        if (user.getId().equals(CurrentUser.get().getId())) {
+        if (user.getId().equals(actingAdmin.getId())) {
             throw ApiException.badRequest("You cannot delete your own account");
         }
         requireManageableRole(user.getRole());
@@ -99,7 +98,7 @@ public class UserService {
     private void apply(User user, UserRequest req, String email) {
         user.setFullName(req.fullName().trim());
         user.setEmail(email);
-        user.setPhone(blankToNull(req.phone()));
+        user.setPhone(trimToNull(req.phone()));
         if (req.active() != null) {
             user.setActive(req.active());
         }

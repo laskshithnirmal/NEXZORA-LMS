@@ -212,4 +212,92 @@ class LmsIntegrationTest {
         assertThat(call(get("/api/student/classes"), student, null, 200)).isEmpty();
         assertThat(call(get("/api/student/payments"), student, null, 200).get(0).get("classId").isNull()).isTrue();
     }
+
+    @Test
+    void editingDeletingAndOwnershipRules() throws Exception {
+        String admin = login("admin@test.lk", "Admin@123");
+        long adminId = call(get("/api/auth/me"), admin, null, 200).get("id").asLong();
+
+        // --- Users: update, email conflict, admin cannot delete themselves ---
+        long teacherAId = call(post("/api/admin/users"), admin, Map.of(
+                "fullName", "Teacher A", "email", "a@test.lk", "password", "secret123", "role", "TEACHER"), 201).get("id").asLong();
+        call(post("/api/admin/users"), admin, Map.of(
+                "fullName", "Teacher B", "email", "b@test.lk", "password", "secret123", "role", "TEACHER"), 201);
+
+        JsonNode renamed = call(put("/api/admin/users/" + teacherAId), admin, Map.of(
+                "fullName", "Dr. Teacher A", "email", "a@test.lk", "phone", "0771234567", "role", "TEACHER"), 200);
+        assertThat(renamed.get("fullName").asText()).isEqualTo("Dr. Teacher A");
+        assertThat(renamed.get("phone").asText()).isEqualTo("0771234567");
+        call(put("/api/admin/users/" + teacherAId), admin, Map.of(
+                "fullName", "Dr. Teacher A", "email", "B@test.lk", "role", "TEACHER"), 409);
+        call(delete("/api/admin/users/" + adminId), admin, null, 400);
+
+        // --- Classes: update ---
+        JsonNode cls = call(post("/api/admin/classes"), admin, Map.of(
+                "name", "Databases", "courseCode", "CS2050", "fee", 12000, "teacherId", teacherAId), 201);
+        long classId = cls.get("id").asLong();
+        String code = cls.get("enrollmentCode").asText();
+        JsonNode updatedClass = call(put("/api/admin/classes/" + classId), admin, Map.of(
+                "name", "Database Systems", "courseCode", "CS2050", "fee", 6500, "teacherId", teacherAId), 200);
+        assertThat(updatedClass.get("name").asText()).isEqualTo("Database Systems");
+        assertThat(updatedClass.get("fee").decimalValue()).isEqualByComparingTo("6500");
+        assertThat(updatedClass.get("enrollmentCode").asText()).isEqualTo(code); // blank code keeps the old one
+
+        // --- Teacher ownership: B cannot see or change A's class ---
+        String teacherA = login("a@test.lk", "secret123");
+        String teacherB = login("b@test.lk", "secret123");
+        call(get("/api/teacher/classes/" + classId), teacherB, null, 403);
+        call(get("/api/teacher/classes/" + classId + "/students"), teacherB, null, 403);
+        call(post("/api/teacher/classes/" + classId + "/materials/video"), teacherB,
+                Map.of("title", "Intruder", "videoUrl", "https://vimeo.com/1"), 403);
+
+        long videoId = call(post("/api/teacher/classes/" + classId + "/materials/video"), teacherA,
+                Map.of("title", "ER modelling", "videoUrl", "https://vimeo.com/123456"), 201).get("id").asLong();
+        call(delete("/api/teacher/materials/" + videoId), teacherB, null, 403);
+        call(delete("/api/teacher/materials/" + videoId), teacherA, null, 204);
+        call(delete("/api/teacher/materials/" + videoId), teacherA, null, 404);
+
+        long announcementId = call(post("/api/teacher/announcements"), teacherA,
+                Map.of("title", "Lab", "content", "Lab moved to Friday", "classId", classId), 201).get("id").asLong();
+        call(post("/api/teacher/announcements"), teacherB,
+                Map.of("title", "Spoof", "content", "Not my class", "classId", classId), 403);
+        call(delete("/api/teacher/announcements/" + announcementId), teacherB, null, 403);
+        call(delete("/api/teacher/announcements/" + announcementId), teacherA, null, 204);
+
+        // --- Students: the code stays hidden after joining ---
+        String student = register("Enrolled Student", "enrolled@test.lk");
+        register("Other Student", "other@test.lk");
+        call(post("/api/student/enroll"), student, Map.of("enrollmentCode", code), 201);
+        assertThat(call(get("/api/student/classes/" + classId), student, null, 200).get("enrollmentCode").isNull()).isTrue();
+
+        long studentId = call(get("/api/auth/me"), student, null, 200).get("id").asLong();
+        long otherId = call(get("/api/admin/users?role=STUDENT"), admin, null, 200).findValues("id").stream()
+                .mapToLong(JsonNode::asLong).filter(id -> id != studentId).findFirst().orElseThrow();
+
+        // --- Payments: class-linked payments require an enrollment; delete works ---
+        call(post("/api/admin/payments"), admin, Map.of(
+                "studentId", otherId, "classId", classId, "amount", 6500, "status", "PAID", "paymentDate", "2026-10-01"), 400);
+        call(post("/api/admin/payments"), admin, Map.of(
+                "studentId", otherId, "amount", 500, "status", "PAID", "paymentDate", "2026-10-01"), 201);
+        long paymentId = call(post("/api/admin/payments"), admin, Map.of(
+                "studentId", studentId, "classId", classId, "amount", 6500, "status", "PENDING", "paymentDate", "2026-10-01"), 201)
+                .get("id").asLong();
+
+        // --- Enrollments: delete removes access ---
+        long enrollmentId = call(get("/api/admin/enrollments"), admin, null, 200).get(0).get("id").asLong();
+        call(delete("/api/admin/enrollments/" + enrollmentId), admin, null, 204);
+        call(delete("/api/admin/enrollments/" + enrollmentId), admin, null, 404);
+        call(get("/api/student/classes/" + classId), student, null, 403);
+
+        // An existing payment stays editable after the student leaves the class...
+        call(put("/api/admin/payments/" + paymentId), admin, Map.of(
+                "studentId", studentId, "classId", classId, "amount", 6500, "status", "PAID", "paymentDate", "2026-10-05"), 200);
+        // ...but it cannot be moved to a class the student is not enrolled in.
+        call(put("/api/admin/payments/" + paymentId), admin, Map.of(
+                "studentId", otherId, "classId", classId, "amount", 6500, "status", "PAID", "paymentDate", "2026-10-05"), 400);
+
+        call(delete("/api/admin/payments/" + paymentId), admin, null, 204);
+        call(delete("/api/admin/payments/" + paymentId), admin, null, 404);
+        assertThat(call(get("/api/student/payments"), student, null, 200)).isEmpty();
+    }
 }

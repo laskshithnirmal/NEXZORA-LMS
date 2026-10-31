@@ -5,6 +5,7 @@ import com.nexzora.lms.entity.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /** Outgoing response bodies. Entities are never serialized directly. */
 public final class Responses {
@@ -84,5 +85,22 @@ public final class Responses {
                     p.getAmount(), p.getStatus(), p.getMethod(), p.getReference(), p.getDescription(),
                     p.getPaymentDate(), p.getCreatedAt());
         }
+    }
+
+    // ---------- dashboards (one record per role) ----------
+
+    /** totalPending includes both PENDING and OVERDUE payments. */
+    public record AdminDashboardDto(long students, long teachers, long classes, long enrollments,
+                                    BigDecimal totalPaid, BigDecimal totalPending,
+                                    List<EnrollmentDto> recentEnrollments, List<AnnouncementDto> recentAnnouncements) {
+    }
+
+    public record TeacherDashboardDto(long classes, long students, long materials,
+                                      List<ClassDto> myClasses, List<AnnouncementDto> recentAnnouncements) {
+    }
+
+    /** totalPending includes both PENDING and OVERDUE payments. */
+    public record StudentDashboardDto(long enrolledClasses, BigDecimal totalPaid, BigDecimal totalPending,
+                                      List<ClassDto> myClasses, List<AnnouncementDto> recentAnnouncements) {
     }
 }

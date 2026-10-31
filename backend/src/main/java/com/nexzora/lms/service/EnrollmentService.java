@@ -8,7 +8,6 @@ import com.nexzora.lms.entity.User;
 import com.nexzora.lms.exception.ApiException;
 import com.nexzora.lms.repository.CourseClassRepository;
 import com.nexzora.lms.repository.EnrollmentRepository;
-import com.nexzora.lms.repository.LearningMaterialRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,14 +19,12 @@ public class EnrollmentService {
 
     private final EnrollmentRepository enrollmentRepository;
     private final CourseClassRepository classRepository;
-    private final LearningMaterialRepository materialRepository;
     private final ClassService classService;
 
     public EnrollmentService(EnrollmentRepository enrollmentRepository, CourseClassRepository classRepository,
-                             LearningMaterialRepository materialRepository, ClassService classService) {
+                             ClassService classService) {
         this.enrollmentRepository = enrollmentRepository;
         this.classRepository = classRepository;
-        this.materialRepository = materialRepository;
         this.classService = classService;
     }
 
@@ -42,8 +39,7 @@ public class EnrollmentService {
             throw ApiException.conflict("You are already enrolled in this class");
         }
         enrollmentRepository.save(new Enrollment(student, c));
-        return ClassDto.from(c, false, enrollmentRepository.countByCourseClassId(c.getId()),
-                materialRepository.countByCourseClassId(c.getId()), true);
+        return classService.toDto(c, false, true);
     }
 
     @Transactional(readOnly = true)

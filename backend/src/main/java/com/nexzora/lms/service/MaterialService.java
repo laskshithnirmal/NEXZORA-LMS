@@ -16,6 +16,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+import static com.nexzora.lms.util.TextUtils.isBlank;
+import static com.nexzora.lms.util.TextUtils.trimToNull;
+
 @Service
 public class MaterialService {
 
@@ -40,7 +43,7 @@ public class MaterialService {
     @Transactional
     public MaterialDto uploadPdf(Long classId, User teacher, String title, String description, MultipartFile file) {
         CourseClass c = classService.findAccessible(classId, teacher);
-        if (title == null || title.isBlank()) {
+        if (isBlank(title)) {
             throw ApiException.badRequest("Title is required");
         }
         if (title.length() > 150) {
@@ -50,7 +53,7 @@ public class MaterialService {
         LearningMaterial m = new LearningMaterial();
         m.setCourseClass(c);
         m.setTitle(title.trim());
-        m.setDescription(description == null || description.isBlank() ? null : description.trim());
+        m.setDescription(trimToNull(description));
         m.setType(MaterialType.PDF);
         m.setFilePath(stored);
         m.setFileName(file.getOriginalFilename());
@@ -70,7 +73,7 @@ public class MaterialService {
         LearningMaterial m = new LearningMaterial();
         m.setCourseClass(c);
         m.setTitle(req.title().trim());
-        m.setDescription(req.description() == null || req.description().isBlank() ? null : req.description().trim());
+        m.setDescription(trimToNull(req.description()));
         m.setType(MaterialType.VIDEO);
         m.setVideoUrl(req.videoUrl().trim());
         m.setUploadedBy(teacher);

@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 /** All endpoints here require ROLE_STUDENT. Enrollment is checked in the services. */
 @RestController
@@ -35,7 +34,7 @@ public class StudentController {
     }
 
     @GetMapping("/dashboard")
-    public Map<String, Object> dashboard() {
+    public StudentDashboardDto dashboard() {
         return dashboardService.student(CurrentUser.get());
     }
 

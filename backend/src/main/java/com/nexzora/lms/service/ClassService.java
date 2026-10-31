@@ -16,6 +16,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.nexzora.lms.util.TextUtils.isBlank;
+import static com.nexzora.lms.util.TextUtils.trimToNull;
+
 @Service
 public class ClassService {
 
@@ -78,7 +81,7 @@ public class ClassService {
     public ClassDto create(ClassRequest req) {
         CourseClass c = new CourseClass();
         apply(c, req);
-        String code = blank(req.enrollmentCode()) ? generateUniqueCode() : req.enrollmentCode().trim().toUpperCase();
+        String code = isBlank(req.enrollmentCode()) ? generateUniqueCode() : req.enrollmentCode().trim().toUpperCase();
         if (classRepository.existsByEnrollmentCodeIgnoreCase(code)) {
             throw ApiException.conflict("This enrollment code is already used by another class");
         }
@@ -90,7 +93,7 @@ public class ClassService {
     public ClassDto update(Long id, ClassRequest req) {
         CourseClass c = find(id);
         apply(c, req);
-        if (!blank(req.enrollmentCode())) {
+        if (!isBlank(req.enrollmentCode())) {
             String code = req.enrollmentCode().trim().toUpperCase();
             if (!code.equalsIgnoreCase(c.getEnrollmentCode()) && classRepository.existsByEnrollmentCodeIgnoreCase(code)) {
                 throw ApiException.conflict("This enrollment code is already used by another class");
@@ -160,8 +163,8 @@ public class ClassService {
     private void apply(CourseClass c, ClassRequest req) {
         c.setName(req.name().trim());
         c.setCourseCode(req.courseCode().trim().toUpperCase());
-        c.setDescription(blank(req.description()) ? null : req.description().trim());
-        c.setSchedule(blank(req.schedule()) ? null : req.schedule().trim());
+        c.setDescription(trimToNull(req.description()));
+        c.setSchedule(trimToNull(req.schedule()));
         c.setFee(req.fee());
         if (req.active() != null) {
             c.setActive(req.active());
@@ -189,12 +192,9 @@ public class ClassService {
         return code;
     }
 
-    private ClassDto toDto(CourseClass c, boolean includeCode, boolean enrolled) {
+    /** Builds the response with live student/material counts. Shared with EnrollmentService. */
+    ClassDto toDto(CourseClass c, boolean includeCode, boolean enrolled) {
         return ClassDto.from(c, includeCode, enrollmentRepository.countByCourseClassId(c.getId()),
                 materialRepository.countByCourseClassId(c.getId()), enrolled);
-    }
-
-    private static boolean blank(String s) {
-        return s == null || s.isBlank();
     }
 }

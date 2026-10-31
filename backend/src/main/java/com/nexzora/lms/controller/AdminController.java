@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 /** All endpoints here require ROLE_ADMIN (enforced in SecurityConfig). */
 @RestController
@@ -38,7 +37,7 @@ public class AdminController {
     }
 
     @GetMapping("/dashboard")
-    public Map<String, Object> dashboard() {
+    public AdminDashboardDto dashboard() {
         return dashboardService.admin(CurrentUser.get());
     }
 
@@ -63,7 +62,7 @@ public class AdminController {
     @DeleteMapping("/users/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@PathVariable Long id) {
-        userService.delete(id);
+        userService.delete(id, CurrentUser.get());
     }
 
     // ----- classes -----
