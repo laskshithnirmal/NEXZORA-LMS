@@ -37,8 +37,9 @@ LMS-Project/
 │   │   ├── exception/        Consistent JSON error responses
 │   │   ├── repository/       Spring Data JPA repositories
 │   │   ├── security/         JWT service + filter
-│   │   └── service/          Business logic and access checks
-│   ├── src/test/             End-to-end API tests (H2 in-memory DB)
+│   │   ├── service/          Business logic and access checks
+│   │   └── util/             Small shared helpers (text cleaning)
+│   ├── src/test/             Integration tests through the real API (H2 in-memory DB)
 │   ├── .env.example          Template for your local secrets
 │   └── mvnw / mvnw.cmd       Maven wrapper
 ├── start-all.cmd             Windows: start backend + frontend
@@ -51,7 +52,7 @@ LMS-Project/
 │       ├── context/          Auth state
 │       ├── pages/            admin/, teacher/, student/ and shared pages
 │       └── utils/            Form validation and formatting
-└── database/schema.sql       Reference MySQL schema
+└── database/schema.sql       Reference MySQL schema (matches the generated tables)
 ```
 
 ## Prerequisites
@@ -202,9 +203,14 @@ cd backend
 ./mvnw test                 # Windows: mvnw.cmd test
 ```
 
-The tests use an in-memory H2 database (no MySQL needed) and cover login, registration, validation,
-role-based access, class creation, teacher assignment, enrollment by code, PDF upload/download,
-video links, announcements, payments, dashboards and cascading deletes.
+The tests use an in-memory H2 database (no MySQL needed). `LmsIntegrationTest` has three tests that call
+the real REST API through MockMvc:
+
+| Test | What it checks |
+|------|----------------|
+| `authenticationAndRoleBasedAccess` | login, registration validation, duplicate e-mail (409), 401/403 role checks, deactivated accounts |
+| `fullClassWorkflow` | class creation, teacher assignment, enrollment by code, PDF upload/download, non-PDF rejection, video links, announcement visibility, payments, dashboards, cascading deletes |
+| `editingDeletingAndOwnershipRules` | editing users and classes, e-mail conflict on update, admin cannot delete own account, a teacher cannot use another teacher's class, deleting materials / announcements / enrollments / payments, the payment-enrollment rule |
 
 ## Production build
 
@@ -228,6 +234,26 @@ If the frontend is served from a different origin than the API, set `VITE_API_UR
 | Files    | `GET /api/materials/{id}/file` (PDF, access-checked) |
 
 All endpoints except login/register require `Authorization: Bearer <token>`.
+
+## Business rules worth knowing
+
+- Students register themselves; teacher accounts are created by an administrator.
+- A student joins a class only with its enrollment code. Codes are hidden from students in every API response.
+- Only *active* classes accept new enrollments; a student cannot join the same class twice.
+- A payment linked to a class requires the student to be enrolled in that class. The rule is checked when
+  the link is created or changed, so an older payment stays editable after the student leaves the class.
+- Deleting a class removes its materials (and PDF files), enrollments and class announcements, and keeps
+  payment history by detaching the class. Deleting a user detaches them from classes, materials and
+  announcements and removes their enrollments and payments.
+
+## Interface design
+
+The interface uses black, white and neutral greys with a single accent colour (`accent` in
+`frontend/tailwind.config.js`) that is reserved for links, focus rings and the current-page marker. Red is
+only used for errors and destructive actions, and green / amber / red dots only for payment and account
+status. Shared building blocks live in `frontend/src/components/ui.jsx` and `frontend/src/index.css`
+(`.card`, `.btn-*`, `.segmented`, `.table`). Below 1024 px the sidebar becomes a slide-in menu; below 640 px
+dashboard figures become compact rows and wide tables scroll inside their card.
 
 ## Security notes
 
