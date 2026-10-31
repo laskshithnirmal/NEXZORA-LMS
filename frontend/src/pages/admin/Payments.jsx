@@ -2,10 +2,10 @@ import { useMemo, useState } from 'react'
 import { CreditCard, Pencil, Plus, Trash2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import api, { errorMessage, fieldErrors } from '../../api/client'
-import { ConfirmDialog, EmptyState, Field, Input, Modal, PageHeader, PageLoader, SearchInput, Select, Spinner } from '../../components/ui'
+import { ConfirmDialog, EmptyState, Field, Input, Modal, PageHeader, PageLoader, SearchInput, Select, Spinner, StatCard } from '../../components/ui'
 import PaymentStatusBadge from '../../components/PaymentStatusBadge'
 import { useApi } from '../../hooks/useApi'
-import { formatDate, formatMoney, todayIso } from '../../utils/format'
+import { formatDate, formatMoney, plural, todayIso } from '../../utils/format'
 import { rules, validate } from '../../utils/validate'
 
 const METHODS = ['Cash', 'Bank Transfer', 'Card', 'Online', 'Cheque']
@@ -14,6 +14,7 @@ export default function Payments() {
   const { data: payments, loading, reload } = useApi('/admin/payments', [])
   const { data: students } = useApi('/admin/users?role=STUDENT', [])
   const { data: classes } = useApi('/admin/classes', [])
+  const { data: enrollments } = useApi('/admin/enrollments', [])
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState('')
   const [editing, setEditing] = useState(null)
@@ -61,23 +62,14 @@ export default function Payments() {
       />
 
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
-        <div className="card p-4">
-          <p className="text-sm text-slate-500">Paid</p>
-          <p className="mt-1 text-xl font-semibold text-emerald-600">{formatMoney(totals.paid)}</p>
-        </div>
-        <div className="card p-4">
-          <p className="text-sm text-slate-500">Pending</p>
-          <p className="mt-1 text-xl font-semibold text-amber-600">{formatMoney(totals.pending)}</p>
-        </div>
-        <div className="card p-4">
-          <p className="text-sm text-slate-500">Overdue</p>
-          <p className="mt-1 text-xl font-semibold text-red-600">{formatMoney(totals.overdue)}</p>
-        </div>
+        <StatCard label="Paid" value={formatMoney(totals.paid)} />
+        <StatCard label="Pending" value={formatMoney(totals.pending)} />
+        <StatCard label="Overdue" value={formatMoney(totals.overdue)} />
       </div>
 
       <div className="card">
-        <div className="flex flex-col gap-3 border-b border-slate-100 px-5 py-4 md:flex-row md:items-center md:justify-between">
-          <p className="text-sm text-slate-500">{filtered.length} records</p>
+        <div className="flex flex-col gap-3 border-b border-neutral-200 px-5 py-3.5 md:flex-row md:items-center md:justify-between">
+          <p className="text-sm text-neutral-500">{plural(filtered.length, 'record')}</p>
           <div className="flex flex-col gap-2 sm:flex-row">
             <select className="input sm:w-40" value={status} onChange={(e) => setStatus(e.target.value)} aria-label="Filter by status">
               <option value="">All statuses</option>
@@ -106,28 +98,28 @@ export default function Payments() {
                   <th className="text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-neutral-200">
                 {filtered.map((p) => (
                   <tr key={p.id}>
                     <td>
-                      <p className="font-medium text-slate-900">{p.studentName}</p>
-                      <p className="text-xs text-slate-500">{p.studentEmail}</p>
+                      <p className="font-medium text-neutral-900">{p.studentName}</p>
+                      <p className="text-xs text-neutral-500">{p.studentEmail}</p>
                     </td>
-                    <td>{p.className || <span className="text-slate-400">General</span>}</td>
+                    <td>{p.className || <span className="text-neutral-400">General</span>}</td>
                     <td className="font-medium">{formatMoney(p.amount)}</td>
                     <td>
                       <PaymentStatusBadge status={p.status} />
                     </td>
                     <td>
                       <p>{p.method || '-'}</p>
-                      {p.reference && <p className="text-xs text-slate-500">{p.reference}</p>}
+                      {p.reference && <p className="text-xs text-neutral-500">{p.reference}</p>}
                     </td>
                     <td>{formatDate(p.paymentDate)}</td>
                     <td className="text-right">
                       <button className="btn-ghost" onClick={() => setEditing(p)} aria-label="Edit">
                         <Pencil className="h-4 w-4" />
                       </button>
-                      <button className="btn-ghost text-red-500 hover:bg-red-50 hover:text-red-600" onClick={() => setToDelete(p)} aria-label="Delete">
+                      <button className="btn-icon-danger" onClick={() => setToDelete(p)} aria-label="Delete">
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </td>
@@ -144,6 +136,7 @@ export default function Payments() {
           payment={editing}
           students={students}
           classes={classes}
+          enrollments={enrollments}
           onClose={() => setEditing(null)}
           onSaved={() => {
             setEditing(null)
@@ -163,7 +156,7 @@ export default function Payments() {
   )
 }
 
-function PaymentForm({ payment, students, classes, onClose, onSaved }) {
+function PaymentForm({ payment, students, classes, enrollments, onClose, onSaved }) {
   const isEdit = Boolean(payment.id)
   const [values, setValues] = useState({
     studentId: payment.studentId || '',
@@ -188,6 +181,20 @@ function PaymentForm({ payment, students, classes, onClose, onSaved }) {
   }
 
   const set = (f) => (e) => setValues((v) => ({ ...v, [f]: e.target.value }))
+
+  // A class-linked payment needs an enrollment (enforced by the backend), so only offer the
+  // selected student's classes. The class already saved on an existing record stays selectable.
+  const classOptions = useMemo(() => {
+    const allowed = new Set(enrollments.filter((e) => String(e.studentId) === String(values.studentId)).map((e) => e.classId))
+    if (isEdit && payment.classId && String(payment.studentId) === String(values.studentId)) allowed.add(payment.classId)
+    return classes.filter((c) => allowed.has(c.id))
+  }, [classes, enrollments, values.studentId, isEdit, payment])
+
+  const onStudentChange = (e) => {
+    const studentId = e.target.value
+    const stillEnrolled = enrollments.some((en) => String(en.studentId) === studentId && String(en.classId) === String(values.classId))
+    setValues((v) => ({ ...v, studentId, classId: stillEnrolled ? v.classId : '' }))
+  }
 
   // Pre-fill the amount with the class fee when a class is chosen for a new record.
   const onClassChange = (e) => {
@@ -240,7 +247,7 @@ function PaymentForm({ payment, students, classes, onClose, onSaved }) {
     >
       <form onSubmit={submit} className="grid gap-4 sm:grid-cols-2" noValidate>
         <Field label="Student" required error={errors.studentId}>
-          <Select value={values.studentId} onChange={set('studentId')} error={errors.studentId}>
+          <Select value={values.studentId} onChange={onStudentChange} error={errors.studentId}>
             <option value="">Select a student</option>
             {students.map((s) => (
               <option key={s.id} value={s.id}>
@@ -249,10 +256,10 @@ function PaymentForm({ payment, students, classes, onClose, onSaved }) {
             ))}
           </Select>
         </Field>
-        <Field label="Class" error={errors.classId} hint="Optional">
-          <Select value={values.classId} onChange={onClassChange}>
+        <Field label="Class" error={errors.classId} hint={values.studentId ? "Optional. Lists the student's enrolled classes." : 'Select a student first'}>
+          <Select value={values.classId} onChange={onClassChange} disabled={!values.studentId}>
             <option value="">General / not class-specific</option>
-            {classes.map((c) => (
+            {classOptions.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.courseCode} — {c.name}
               </option>

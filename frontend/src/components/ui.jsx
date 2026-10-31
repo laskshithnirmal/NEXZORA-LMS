@@ -7,58 +7,58 @@ export function Spinner({ className = 'h-5 w-5' }) {
 
 export function PageLoader() {
   return (
-    <div className="flex items-center justify-center py-20 text-brand-600">
-      <Spinner className="h-8 w-8" />
+    <div className="flex items-center justify-center py-20 text-neutral-900">
+      <Spinner className="h-7 w-7" />
     </div>
   )
 }
 
 export function PageHeader({ title, subtitle, actions }) {
   return (
-    <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="mb-6 flex flex-col gap-3 border-b border-neutral-200 pb-5 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <h1 className="text-xl font-semibold text-slate-900 sm:text-2xl">{title}</h1>
-        {subtitle && <p className="mt-1 text-sm text-slate-500">{subtitle}</p>}
+        <h1 className="text-2xl font-semibold text-neutral-900">{title}</h1>
+        {subtitle && <p className="mt-1 text-sm text-neutral-500">{subtitle}</p>}
       </div>
       {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
     </div>
   )
 }
 
-const TONES = {
-  blue: 'bg-brand-50 text-brand-600',
-  green: 'bg-emerald-50 text-emerald-600',
-  amber: 'bg-amber-50 text-amber-600',
-  purple: 'bg-violet-50 text-violet-600',
-  rose: 'bg-rose-50 text-rose-600',
-}
-
-export function StatCard({ icon: Icon, label, value, tone = 'blue' }) {
+/** A single figure on a dashboard. Compact label/value row on phones, a tile from the sm breakpoint. */
+export function StatCard({ icon: Icon, label, value, hint }) {
   return (
-    <div className="card flex items-center gap-4 p-5">
-      <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${TONES[tone]}`}>
-        <Icon className="h-6 w-6" />
+    <div className="card flex items-center justify-between gap-3 px-4 py-3 sm:block sm:p-5">
+      <div className="flex min-w-0 items-center justify-between gap-3">
+        <p className="text-xs font-medium uppercase tracking-wider text-neutral-500">{label}</p>
+        {Icon && <Icon className="hidden h-4 w-4 shrink-0 text-neutral-400 sm:block" />}
       </div>
-      <div className="min-w-0">
-        <p className="text-sm text-slate-500">{label}</p>
-        <p className="truncate text-2xl font-semibold text-slate-900">{value}</p>
+      <div className="min-w-0 text-right sm:text-left">
+        <p className="truncate text-lg font-semibold tabular-nums text-neutral-900 sm:mt-2 sm:text-2xl">{value}</p>
+        {hint && <p className="mt-1 hidden text-xs text-neutral-500 sm:block">{hint}</p>}
       </div>
     </div>
   )
 }
 
-const BADGES = {
-  gray: 'bg-slate-100 text-slate-700',
-  green: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
-  red: 'bg-red-50 text-red-700 ring-red-600/20',
-  amber: 'bg-amber-50 text-amber-700 ring-amber-600/20',
-  blue: 'bg-brand-50 text-brand-700 ring-brand-600/20',
-  purple: 'bg-violet-50 text-violet-700 ring-violet-600/20',
+// Badges are neutral; colour appears only as a small status dot.
+const DOTS = {
+  gray: null,
+  dark: null,
+  green: 'bg-emerald-600',
+  amber: 'bg-amber-500',
+  red: 'bg-red-600',
 }
 
 export function Badge({ tone = 'gray', children }) {
+  const dark = tone === 'dark'
   return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ring-transparent ${BADGES[tone]}`}>
+    <span
+      className={`inline-flex items-center gap-1.5 rounded border px-2 py-0.5 text-xs font-medium ${
+        dark ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-300 bg-white text-neutral-700'
+      }`}
+    >
+      {DOTS[tone] && <span className={`h-1.5 w-1.5 rounded-full ${DOTS[tone]}`} />}
       {children}
     </span>
   )
@@ -67,11 +67,9 @@ export function Badge({ tone = 'gray', children }) {
 export function EmptyState({ icon: Icon = Inbox, title, message, action }) {
   return (
     <div className="flex flex-col items-center justify-center px-6 py-14 text-center">
-      <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400">
-        <Icon className="h-6 w-6" />
-      </div>
-      <p className="font-medium text-slate-700">{title}</p>
-      {message && <p className="mt-1 max-w-sm text-sm text-slate-500">{message}</p>}
+      <Icon className="mb-3 h-8 w-8 text-neutral-300" strokeWidth={1.5} />
+      <p className="font-medium text-neutral-800">{title}</p>
+      {message && <p className="mt-1 max-w-sm text-sm text-neutral-500">{message}</p>}
       {action && <div className="mt-4">{action}</div>}
     </div>
   )
@@ -80,8 +78,8 @@ export function EmptyState({ icon: Icon = Inbox, title, message, action }) {
 export function SearchInput({ value, onChange, placeholder = 'Search...' }) {
   return (
     <div className="relative w-full sm:w-64">
-      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-      <input className="input pl-9" value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} />
+      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+      <input className="input pl-9" value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} aria-label={placeholder} />
     </div>
   )
 }
@@ -92,11 +90,11 @@ export function Field({ label, error, hint, required, children, htmlFor }) {
     <div>
       {label && (
         <label className="label" htmlFor={htmlFor}>
-          {label} {required && <span className="text-red-500">*</span>}
+          {label} {required && <span className="text-red-600">*</span>}
         </label>
       )}
       {children}
-      {error ? <p className="mt-1 text-xs text-red-600">{error}</p> : hint && <p className="mt-1 text-xs text-slate-500">{hint}</p>}
+      {error ? <p className="mt-1 text-xs text-red-600">{error}</p> : hint && <p className="mt-1 text-xs text-neutral-500">{hint}</p>}
     </div>
   )
 }
@@ -133,16 +131,16 @@ export function Modal({ open, title, onClose, children, footer, size = 'md' }) {
   const width = { sm: 'sm:max-w-md', md: 'sm:max-w-lg', lg: 'sm:max-w-2xl' }[size]
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4">
-      <div className="absolute inset-0 bg-slate-900/50" onClick={onClose} />
-      <div role="dialog" aria-modal="true" className={`relative flex max-h-[92vh] w-full flex-col rounded-t-2xl bg-white shadow-xl sm:rounded-2xl ${width}`}>
-        <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-          <h2 className="text-base font-semibold text-slate-900">{title}</h2>
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div role="dialog" aria-modal="true" aria-label={title} className={`relative flex max-h-[92vh] w-full flex-col rounded-t-xl border border-neutral-200 bg-white sm:rounded-lg ${width}`}>
+        <div className="flex items-center justify-between border-b border-neutral-200 px-5 py-3.5">
+          <h2 className="text-base font-semibold text-neutral-900">{title}</h2>
           <button className="btn-ghost" onClick={onClose} aria-label="Close">
             <X className="h-5 w-5" />
           </button>
         </div>
         <div className="overflow-y-auto px-5 py-4">{children}</div>
-        {footer && <div className="flex justify-end gap-2 border-t border-slate-200 px-5 py-3">{footer}</div>}
+        {footer && <div className="flex justify-end gap-2 border-t border-neutral-200 bg-neutral-50 px-5 py-3">{footer}</div>}
       </div>
     </div>
   )
@@ -167,10 +165,8 @@ export function ConfirmDialog({ open, title = 'Are you sure?', message, confirmL
       }
     >
       <div className="flex gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-600">
-          <AlertTriangle className="h-5 w-5" />
-        </div>
-        <p className="text-sm text-slate-600">{message}</p>
+        <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
+        <p className="text-sm text-neutral-700">{message}</p>
       </div>
     </Modal>
   )

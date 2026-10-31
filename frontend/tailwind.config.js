@@ -5,24 +5,24 @@ export default {
     extend: {
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', 'Segoe UI', 'Roboto', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Consolas', 'monospace'],
       },
       colors: {
-        brand: {
-          50: '#eef4ff',
-          100: '#dbe6fe',
-          200: '#bfd3fe',
-          300: '#93b4fd',
-          400: '#608bfa',
-          500: '#3b66f5',
-          600: '#2548ea',
-          700: '#1d37d7',
-          800: '#1e2fae',
-          900: '#1e2d89',
-          950: '#151d54',
+        // NEXZORA identity: black, white and neutral greys, plus ONE accent colour.
+        // The accent is reserved for links, focus rings and the current-page marker.
+        accent: {
+          50: '#eef3ff',
+          100: '#dce6fd',
+          200: '#bccdfa',
+          300: '#8eaaf4',
+          400: '#5c80ea',
+          500: '#3a5fdc',
+          600: '#2445c4',
+          700: '#1d379f',
+          800: '#1c3181',
+          900: '#1b2c67',
+          950: '#121b3f',
         },
-      },
-      boxShadow: {
-        card: '0 1px 2px 0 rgb(15 23 42 / 0.04), 0 1px 3px 0 rgb(15 23 42 / 0.06)',
       },
     },
   },

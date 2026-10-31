@@ -14,36 +14,36 @@ export default function AdminDashboard() {
 
   return (
     <>
-      <PageHeader title={`Welcome, ${user.fullName.split(' ')[0]}`} subtitle="Here is an overview of your institution." />
+      <PageHeader title="Dashboard" subtitle={`Signed in as ${user.fullName}. An overview of users, classes and fees.`} />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <StatCard icon={GraduationCap} label="Students" value={data.students} tone="blue" />
-        <StatCard icon={UserCheck} label="Teachers" value={data.teachers} tone="purple" />
-        <StatCard icon={Library} label="Classes" value={data.classes} tone="amber" />
-        <StatCard icon={ClipboardList} label="Enrollments" value={data.enrollments} tone="green" />
-        <StatCard icon={Wallet} label="Payments received" value={formatMoney(data.totalPaid)} tone="green" />
-        <StatCard icon={CreditCard} label="Pending / overdue" value={formatMoney(data.totalPending)} tone="rose" />
+        <StatCard icon={GraduationCap} label="Students" value={data.students} />
+        <StatCard icon={UserCheck} label="Teachers" value={data.teachers} />
+        <StatCard icon={Library} label="Classes" value={data.classes} />
+        <StatCard icon={ClipboardList} label="Enrollments" value={data.enrollments} />
+        <StatCard icon={Wallet} label="Payments received" value={formatMoney(data.totalPaid)} />
+        <StatCard icon={CreditCard} label="Pending / overdue" value={formatMoney(data.totalPending)} />
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <section className="card">
-          <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-            <h2 className="font-semibold text-slate-900">Recent enrollments</h2>
-            <Link to="/admin/enrollments" className="text-sm font-medium text-brand-600 hover:text-brand-700">
+          <div className="card-header">
+            <h2 className="card-title">Recent enrollments</h2>
+            <Link to="/admin/enrollments" className="link text-sm">
               View all
             </Link>
           </div>
           {data.recentEnrollments.length ? (
-            <ul className="divide-y divide-slate-100">
+            <ul className="divide-y divide-neutral-200">
               {data.recentEnrollments.map((e) => (
                 <li key={e.id} className="flex items-center justify-between gap-3 px-5 py-3 text-sm">
                   <div className="min-w-0">
-                    <p className="truncate font-medium text-slate-800">{e.studentName}</p>
-                    <p className="truncate text-slate-500">
+                    <p className="truncate font-medium text-neutral-800">{e.studentName}</p>
+                    <p className="truncate text-neutral-500">
                       {e.courseCode} · {e.className}
                     </p>
                   </div>
-                  <span className="shrink-0 text-xs text-slate-400">{formatDate(e.enrolledAt)}</span>
+                  <span className="shrink-0 text-xs text-neutral-400">{formatDate(e.enrolledAt)}</span>
                 </li>
               ))}
             </ul>
@@ -53,9 +53,9 @@ export default function AdminDashboard() {
         </section>
 
         <section className="card">
-          <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-            <h2 className="font-semibold text-slate-900">Latest announcements</h2>
-            <Link to="/admin/announcements" className="text-sm font-medium text-brand-600 hover:text-brand-700">
+          <div className="card-header">
+            <h2 className="card-title">Latest announcements</h2>
+            <Link to="/admin/announcements" className="link text-sm">
               Manage
             </Link>
           </div>

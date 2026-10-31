@@ -4,7 +4,7 @@ import toast from 'react-hot-toast'
 import api, { errorMessage, fieldErrors } from '../../api/client'
 import { Badge, ConfirmDialog, EmptyState, Field, Input, Modal, PageHeader, PageLoader, SearchInput, Spinner } from '../../components/ui'
 import { useApi } from '../../hooks/useApi'
-import { formatDate } from '../../utils/format'
+import { formatDate, plural } from '../../utils/format'
 import { rules, validate } from '../../utils/validate'
 
 /** Admin CRUD for students (role="STUDENT") or teachers (role="TEACHER"). */
@@ -49,10 +49,9 @@ export default function ManageUsers({ role }) {
       />
 
       <div className="card">
-        <div className="flex flex-col gap-3 border-b border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm text-slate-500">
-            {filtered.length} {label.toLowerCase()}
-            {filtered.length === 1 ? '' : 's'}
+        <div className="flex flex-col gap-3 border-b border-neutral-200 px-5 py-3.5 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-neutral-500">
+            {plural(filtered.length, label.toLowerCase())}
           </p>
           <SearchInput value={query} onChange={setQuery} placeholder={`Search ${label.toLowerCase()}s...`} />
         </div>
@@ -73,10 +72,10 @@ export default function ManageUsers({ role }) {
                   <th className="text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-neutral-200">
                 {filtered.map((u) => (
                   <tr key={u.id}>
-                    <td className="font-medium text-slate-900">{u.fullName}</td>
+                    <td className="font-medium text-neutral-900">{u.fullName}</td>
                     <td>{u.email}</td>
                     <td>{u.phone || '-'}</td>
                     <td>{u.active ? <Badge tone="green">Active</Badge> : <Badge tone="red">Inactive</Badge>}</td>
@@ -85,7 +84,7 @@ export default function ManageUsers({ role }) {
                       <button className="btn-ghost" onClick={() => setEditing(u)} aria-label="Edit">
                         <Pencil className="h-4 w-4" />
                       </button>
-                      <button className="btn-ghost text-red-500 hover:bg-red-50 hover:text-red-600" onClick={() => setToDelete(u)} aria-label="Delete">
+                      <button className="btn-icon-danger" onClick={() => setToDelete(u)} aria-label="Delete">
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </td>
@@ -191,8 +190,8 @@ function UserForm({ user, role, label, onClose, onSaved }) {
         <Field label={isEdit ? 'New password' : 'Password'} required={!isEdit} error={errors.password} hint={isEdit ? 'Leave blank to keep the current password' : 'At least 6 characters'}>
           <Input type="password" autoComplete="new-password" value={values.password} onChange={set('password')} error={errors.password} />
         </Field>
-        <label className="flex items-center gap-2 text-sm text-slate-700">
-          <input type="checkbox" className="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" checked={values.active} onChange={set('active')} />
+        <label className="flex items-center gap-2 text-sm text-neutral-700">
+          <input type="checkbox" className="checkbox" checked={values.active} onChange={set('active')} />
           Account is active (can log in)
         </label>
       </form>

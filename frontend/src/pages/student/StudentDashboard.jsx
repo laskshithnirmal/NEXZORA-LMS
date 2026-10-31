@@ -17,12 +17,12 @@ export default function StudentDashboard() {
 
   return (
     <>
-      <PageHeader title={`Hello, ${user.fullName.split(' ')[0]} 👋`} subtitle="Continue learning where you left off." />
+      <PageHeader title={`Hello, ${user.fullName.split(' ')[0]}`} subtitle="Continue learning where you left off." />
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard icon={BookOpen} label="Enrolled classes" value={data.enrolledClasses} tone="blue" />
-        <StatCard icon={Wallet} label="Total paid" value={formatMoney(data.totalPaid)} tone="green" />
-        <StatCard icon={CreditCard} label="Outstanding" value={formatMoney(data.totalPending)} tone="amber" />
+        <StatCard icon={BookOpen} label="Enrolled classes" value={data.enrolledClasses} />
+        <StatCard icon={Wallet} label="Total paid" value={formatMoney(data.totalPaid)} />
+        <StatCard icon={CreditCard} label="Outstanding" value={formatMoney(data.totalPending)} />
       </div>
 
       <div className="mt-6">
@@ -32,8 +32,8 @@ export default function StudentDashboard() {
       <div className="mt-8 grid gap-6 xl:grid-cols-3">
         <section className="xl:col-span-2">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="font-semibold text-slate-900">My classes</h2>
-            <Link to="/student/classes" className="text-sm font-medium text-brand-600 hover:text-brand-700">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-neutral-500">My classes</h2>
+            <Link to="/student/classes" className="link text-sm">
               View all
             </Link>
           </div>
@@ -59,9 +59,9 @@ export default function StudentDashboard() {
           )}
         </section>
         <section className="card self-start">
-          <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-            <h2 className="font-semibold text-slate-900">Announcements</h2>
-            <Link to="/student/announcements" className="text-sm font-medium text-brand-600 hover:text-brand-700">
+          <div className="card-header">
+            <h2 className="card-title">Announcements</h2>
+            <Link to="/student/announcements" className="link text-sm">
               View all
             </Link>
           </div>

@@ -4,7 +4,7 @@ import { CheckCircle2, Library } from 'lucide-react'
 import ClassCard from '../../components/ClassCard'
 import { EmptyState, PageHeader, PageLoader, SearchInput } from '../../components/ui'
 import { useApi } from '../../hooks/useApi'
-import { formatMoney } from '../../utils/format'
+import { formatMoney, plural } from '../../utils/format'
 import JoinClassForm from './JoinClassForm'
 
 export default function BrowseClasses() {
@@ -24,7 +24,7 @@ export default function BrowseClasses() {
       <JoinClassForm onJoined={reload} />
 
       <div className="mb-4 mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm text-slate-500">{filtered.length} classes available</p>
+        <p className="text-sm text-neutral-500">{plural(filtered.length, 'class', 'classes')} available</p>
         <SearchInput value={query} onChange={setQuery} placeholder="Search classes..." />
       </div>
 
@@ -42,13 +42,13 @@ export default function BrowseClasses() {
               cls={c}
               footer={
                 <div className="flex items-center justify-between text-sm">
-                  <span className="font-medium text-slate-700">{formatMoney(c.fee)}</span>
+                  <span className="font-medium tabular-nums text-neutral-900">{formatMoney(c.fee)}</span>
                   {c.enrolled ? (
-                    <Link to={`/student/classes/${c.id}`} className="inline-flex items-center gap-1 font-medium text-emerald-600 hover:underline">
-                      <CheckCircle2 className="h-4 w-4" /> Enrolled — open
+                    <Link to={`/student/classes/${c.id}`} className="link inline-flex items-center gap-1">
+                      <CheckCircle2 className="h-4 w-4" /> Enrolled · Open
                     </Link>
                   ) : (
-                    <span className="text-xs text-slate-400">Requires enrollment code</span>
+                    <span className="text-xs text-neutral-500">Enrollment code required</span>
                   )}
                 </div>
               }

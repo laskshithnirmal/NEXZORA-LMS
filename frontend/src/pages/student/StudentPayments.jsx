@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { CreditCard } from 'lucide-react'
 import PaymentStatusBadge from '../../components/PaymentStatusBadge'
-import { EmptyState, PageHeader, PageLoader } from '../../components/ui'
+import { EmptyState, PageHeader, PageLoader, StatCard } from '../../components/ui'
 import { useApi } from '../../hooks/useApi'
 import { formatDate, formatMoney } from '../../utils/format'
 
@@ -18,14 +18,8 @@ export default function StudentPayments() {
       <PageHeader title="Payments" subtitle="Your fee payment history. Contact the administration if something looks wrong." />
 
       <div className="mb-6 grid gap-4 sm:grid-cols-2">
-        <div className="card p-5">
-          <p className="text-sm text-slate-500">Total paid</p>
-          <p className="mt-1 text-2xl font-semibold text-emerald-600">{formatMoney(totals.paid)}</p>
-        </div>
-        <div className="card p-5">
-          <p className="text-sm text-slate-500">Outstanding (pending / overdue)</p>
-          <p className="mt-1 text-2xl font-semibold text-amber-600">{formatMoney(totals.due)}</p>
-        </div>
+        <StatCard label="Total paid" value={formatMoney(totals.paid)} />
+        <StatCard label="Outstanding" value={formatMoney(totals.due)} hint="Pending and overdue payments" />
       </div>
 
       <div className="card">
@@ -47,11 +41,11 @@ export default function StudentPayments() {
                   <th className="text-right">Amount</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-neutral-200">
                 {payments.map((p) => (
                   <tr key={p.id}>
                     <td>{formatDate(p.paymentDate)}</td>
-                    <td>{p.className || <span className="text-slate-400">General</span>}</td>
+                    <td>{p.className || <span className="text-neutral-400">General</span>}</td>
                     <td>{p.description || '-'}</td>
                     <td>{p.method || '-'}</td>
                     <td className="font-mono text-xs">{p.reference || '-'}</td>

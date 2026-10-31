@@ -46,7 +46,7 @@ export default function Login() {
   }
 
   return (
-    <AuthShell title="Sign in to your account" subtitle="Welcome back! Please enter your details.">
+    <AuthShell title="Sign in to your account" subtitle="Use the email address and password for your account.">
       <form onSubmit={onSubmit} className="space-y-5" noValidate>
         <Field label="Email address" error={errors.email} htmlFor="email">
           <Input id="email" type="email" autoComplete="email" value={values.email} onChange={set('email')} error={errors.email} placeholder="you@university.edu" />
@@ -58,9 +58,9 @@ export default function Login() {
           {busy && <Spinner className="h-4 w-4" />} Sign in
         </button>
       </form>
-      <p className="mt-6 text-center text-sm text-slate-500">
+      <p className="mt-6 text-center text-sm text-neutral-500">
         New student?{' '}
-        <Link to="/register" className="font-medium text-brand-600 hover:text-brand-700">
+        <Link to="/register" className="link">
           Create an account
         </Link>
       </p>

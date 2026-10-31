@@ -69,9 +69,9 @@ export default function Register() {
           {busy && <Spinner className="h-4 w-4" />} Create account
         </button>
       </form>
-      <p className="mt-6 text-center text-sm text-slate-500">
+      <p className="mt-6 text-center text-sm text-neutral-500">
         Already have an account?{' '}
-        <Link to="/login" className="font-medium text-brand-600 hover:text-brand-700">
+        <Link to="/login" className="link">
           Sign in
         </Link>
       </p>

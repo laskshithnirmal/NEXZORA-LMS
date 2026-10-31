@@ -4,7 +4,7 @@ import toast from 'react-hot-toast'
 import api, { errorMessage } from '../../api/client'
 import { ConfirmDialog, EmptyState, PageHeader, PageLoader, SearchInput } from '../../components/ui'
 import { useApi } from '../../hooks/useApi'
-import { formatDateTime } from '../../utils/format'
+import { formatDateTime, plural } from '../../utils/format'
 
 export default function Enrollments() {
   const { data: enrollments, loading, reload } = useApi('/admin/enrollments', [])
@@ -46,8 +46,8 @@ export default function Enrollments() {
     <>
       <PageHeader title="Enrollments" subtitle="All student enrollments across classes." />
       <div className="card">
-        <div className="flex flex-col gap-3 border-b border-slate-100 px-5 py-4 md:flex-row md:items-center md:justify-between">
-          <p className="text-sm text-slate-500">{filtered.length} enrollments</p>
+        <div className="flex flex-col gap-3 border-b border-neutral-200 px-5 py-3.5 md:flex-row md:items-center md:justify-between">
+          <p className="text-sm text-neutral-500">{plural(filtered.length, 'enrollment')}</p>
           <div className="flex flex-col gap-2 sm:flex-row">
             <select className="input sm:w-64" value={classFilter} onChange={(e) => setClassFilter(e.target.value)} aria-label="Filter by class">
               <option value="">All classes</option>
@@ -75,20 +75,20 @@ export default function Enrollments() {
                   <th className="text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-neutral-200">
                 {filtered.map((e) => (
                   <tr key={e.id}>
                     <td>
-                      <p className="font-medium text-slate-900">{e.studentName}</p>
-                      <p className="text-xs text-slate-500">{e.studentEmail}</p>
+                      <p className="font-medium text-neutral-900">{e.studentName}</p>
+                      <p className="text-xs text-neutral-500">{e.studentEmail}</p>
                     </td>
                     <td>
-                      <p className="text-slate-800">{e.className}</p>
-                      <p className="text-xs text-slate-500">{e.courseCode}</p>
+                      <p className="text-neutral-800">{e.className}</p>
+                      <p className="text-xs text-neutral-500">{e.courseCode}</p>
                     </td>
                     <td>{formatDateTime(e.enrolledAt)}</td>
                     <td className="text-right">
-                      <button className="btn-ghost text-red-500 hover:bg-red-50 hover:text-red-600" onClick={() => setToDelete(e)} aria-label="Remove enrollment">
+                      <button className="btn-icon-danger" onClick={() => setToDelete(e)} aria-label="Remove enrollment">
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </td>

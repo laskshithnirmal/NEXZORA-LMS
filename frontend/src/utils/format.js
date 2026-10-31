@@ -71,3 +71,8 @@ export function toEmbedUrl(url) {
   }
   return null
 }
+
+/** "1 class", "2 classes". Pass the plural form when it is not word + "s". */
+export function plural(count, word, pluralWord = `${word}s`) {
+  return `${count} ${count === 1 ? word : pluralWord}`
+}

@@ -33,38 +33,36 @@ export default function StudentClassDetail() {
 
   return (
     <>
-      <Link to="/student/classes" className="mb-4 inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700">
+      <Link to="/student/classes" className="mb-4 inline-flex items-center gap-1 text-sm text-neutral-500 hover:text-neutral-700">
         <ArrowLeft className="h-4 w-4" /> My classes
       </Link>
 
-      <div className="card mb-6 overflow-hidden">
-        <div className="bg-gradient-to-r from-brand-600 to-brand-800 px-6 py-6 text-white">
-          <p className="text-sm font-medium uppercase tracking-wide text-brand-100">{cls.courseCode}</p>
-          <h1 className="mt-1 text-2xl font-semibold">{cls.name}</h1>
-          <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm text-brand-100">
+      <div className="mb-6 border-b border-neutral-200 pb-5">
+        <p className="font-mono text-sm font-medium text-neutral-500">{cls.courseCode}</p>
+        <h1 className="mt-1 text-2xl font-semibold text-neutral-900">{cls.name}</h1>
+        <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm text-neutral-600">
+          <span className="flex items-center gap-1.5">
+            <User className="h-4 w-4 text-neutral-400" /> {cls.teacherName || 'Teacher not assigned'}
+          </span>
+          {cls.schedule && (
             <span className="flex items-center gap-1.5">
-              <User className="h-4 w-4" /> {cls.teacherName || 'Teacher not assigned'}
+              <Clock className="h-4 w-4 text-neutral-400" /> {cls.schedule}
             </span>
-            {cls.schedule && (
-              <span className="flex items-center gap-1.5">
-                <Clock className="h-4 w-4" /> {cls.schedule}
-              </span>
-            )}
-          </div>
+          )}
         </div>
-        {cls.description && <p className="px-6 py-4 text-sm text-slate-600">{cls.description}</p>}
+        {cls.description && <p className="mt-3 max-w-3xl text-sm text-neutral-600">{cls.description}</p>}
       </div>
 
       <div className="grid gap-6 xl:grid-cols-3">
         <section className="card xl:col-span-2">
-          <div className="flex flex-col gap-3 border-b border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="font-semibold text-slate-900">Learning materials</h2>
-            <div className="inline-flex rounded-lg border border-slate-200 bg-white p-1">
+          <div className="flex flex-col gap-3 border-b border-neutral-200 px-5 py-3.5 sm:flex-row sm:items-center sm:justify-between">
+            <h2 className="card-title">Learning materials</h2>
+            <div className="segmented">
               {FILTERS.map(([key, label]) => (
                 <button
                   key={key}
                   onClick={() => setFilter(key)}
-                  className={`rounded-md px-3 py-1 text-xs font-medium transition ${filter === key ? 'bg-brand-600 text-white' : 'text-slate-600 hover:text-slate-900'}`}
+                  className={`segmented-item text-xs ${filter === key ? 'segmented-item-active' : ''}`}
                 >
                   {label}
                 </button>
@@ -74,8 +72,8 @@ export default function StudentClassDetail() {
           <MaterialList items={shown} emptyMessage="Your teacher hasn't added materials of this type yet." />
         </section>
         <section className="card self-start">
-          <div className="border-b border-slate-100 px-5 py-4">
-            <h2 className="font-semibold text-slate-900">Class announcements</h2>
+          <div className="card-header">
+            <h2 className="card-title">Class announcements</h2>
           </div>
           <AnnouncementList items={classAnnouncements} compact />
         </section>

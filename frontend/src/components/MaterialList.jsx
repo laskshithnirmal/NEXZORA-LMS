@@ -27,21 +27,21 @@ export default function MaterialList({ items, onDelete, emptyMessage = 'No learn
 
   return (
     <>
-      <ul className="divide-y divide-slate-100">
+      <ul className="divide-y divide-neutral-200">
         {items.map((m) => {
           const isPdf = m.type === 'PDF'
           return (
             <li key={m.id} className="flex items-center gap-4 px-5 py-4">
-              <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${isPdf ? 'bg-red-50 text-red-600' : 'bg-violet-50 text-violet-600'}`}>
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-neutral-200 bg-neutral-50 text-neutral-700">
                 {isPdf ? <FileText className="h-5 w-5" /> : <Video className="h-5 w-5" />}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <p className="truncate font-medium text-slate-900">{m.title}</p>
-                  <Badge tone={isPdf ? 'red' : 'purple'}>{isPdf ? 'PDF' : 'Video'}</Badge>
+                  <p className="truncate font-medium text-neutral-900">{m.title}</p>
+                  <Badge>{isPdf ? 'PDF' : 'Video'}</Badge>
                 </div>
-                {m.description && <p className="mt-0.5 line-clamp-2 text-sm text-slate-500">{m.description}</p>}
-                <p className="mt-1 text-xs text-slate-400">
+                {m.description && <p className="mt-0.5 line-clamp-2 text-sm text-neutral-500">{m.description}</p>}
+                <p className="mt-1 text-xs text-neutral-500">
                   {isPdf && m.fileSize ? `${formatFileSize(m.fileSize)} · ` : ''}
                   {m.uploadedBy ? `${m.uploadedBy} · ` : ''}
                   {formatDate(m.createdAt)}
@@ -53,7 +53,7 @@ export default function MaterialList({ items, onDelete, emptyMessage = 'No learn
                   <span className="hidden sm:inline">{isPdf ? 'Open' : 'Watch'}</span>
                 </button>
                 {onDelete && (
-                  <button className="btn-ghost text-red-500 hover:bg-red-50 hover:text-red-600" onClick={() => onDelete(m)} aria-label="Delete material">
+                  <button className="btn-icon-danger" onClick={() => onDelete(m)} aria-label="Delete material">
                     <Trash2 className="h-4 w-4" />
                   </button>
                 )}
@@ -75,8 +75,8 @@ export default function MaterialList({ items, onDelete, emptyMessage = 'No learn
                 allowFullScreen
               />
             </div>
-            {video.description && <p className="mt-3 text-sm text-slate-600">{video.description}</p>}
-            <a href={video.videoUrl} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-1 text-sm text-brand-600 hover:underline">
+            {video.description && <p className="mt-3 text-sm text-neutral-600">{video.description}</p>}
+            <a href={video.videoUrl} target="_blank" rel="noopener noreferrer" className="link mt-2 inline-flex items-center gap-1 text-sm">
               Open in new tab <ExternalLink className="h-3.5 w-3.5" />
             </a>
           </>

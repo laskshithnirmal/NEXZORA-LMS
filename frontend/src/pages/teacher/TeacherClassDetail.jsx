@@ -54,29 +54,27 @@ export default function TeacherClassDetail() {
 
   return (
     <>
-      <Link to="/teacher/classes" className="mb-4 inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700">
+      <Link to="/teacher/classes" className="mb-4 inline-flex items-center gap-1 text-sm text-neutral-500 hover:text-neutral-700">
         <ArrowLeft className="h-4 w-4" /> My classes
       </Link>
 
-      <div className="card mb-6 overflow-hidden">
-        <div className="bg-gradient-to-r from-brand-600 to-brand-800 px-6 py-6 text-white">
-          <p className="text-sm font-medium uppercase tracking-wide text-brand-100">{cls.courseCode}</p>
-          <h1 className="mt-1 text-2xl font-semibold">{cls.name}</h1>
-          {cls.schedule && <p className="mt-1 text-sm text-brand-100">{cls.schedule}</p>}
+      <div className="mb-6 flex flex-col gap-4 border-b border-neutral-200 pb-5 md:flex-row md:items-end md:justify-between">
+        <div className="min-w-0">
+          <p className="font-mono text-sm font-medium text-neutral-500">{cls.courseCode}</p>
+          <h1 className="mt-1 text-2xl font-semibold text-neutral-900">{cls.name}</h1>
+          {cls.schedule && <p className="mt-1 text-sm text-neutral-600">{cls.schedule}</p>}
+          <p className="mt-3 max-w-3xl text-sm text-neutral-600">{cls.description || 'No description.'}</p>
         </div>
-        <div className="flex flex-col gap-4 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm text-slate-600">{cls.description || 'No description.'}</p>
-          <div className="flex shrink-0 items-center gap-2 text-sm">
-            <span className="text-slate-500">Enrollment code:</span>
-            <button onClick={copyCode} className="inline-flex items-center gap-1.5 rounded-md bg-brand-50 px-2.5 py-1 font-mono font-semibold text-brand-700 hover:bg-brand-100">
-              {cls.enrollmentCode} <Copy className="h-3.5 w-3.5" />
-            </button>
-          </div>
+        <div className="shrink-0 rounded-lg border border-neutral-200 bg-white px-4 py-3">
+          <p className="text-xs font-medium uppercase tracking-wider text-neutral-500">Enrollment code</p>
+          <button onClick={copyCode} className="mt-1 inline-flex items-center gap-2 font-mono text-lg font-medium text-neutral-900 hover:text-accent-600" title="Copy code">
+            {cls.enrollmentCode} <Copy className="h-4 w-4 text-neutral-400" />
+          </button>
         </div>
       </div>
 
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="inline-flex rounded-lg border border-slate-200 bg-white p-1">
+        <div className="segmented">
           {[
             ['materials', `Materials (${materials.length})`],
             ['students', `Students (${students.length})`],
@@ -84,7 +82,7 @@ export default function TeacherClassDetail() {
             <button
               key={key}
               onClick={() => setTab(key)}
-              className={`rounded-md px-4 py-1.5 text-sm font-medium transition ${tab === key ? 'bg-brand-600 text-white' : 'text-slate-600 hover:text-slate-900'}`}
+              className={`segmented-item px-4 ${tab === key ? 'segmented-item-active' : ''}`}
             >
               {label}
             </button>
@@ -118,11 +116,11 @@ export default function TeacherClassDetail() {
                   <th>Enrolled</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-neutral-200">
                 {students.map((s, i) => (
                   <tr key={s.id}>
-                    <td className="text-slate-400">{i + 1}</td>
-                    <td className="font-medium text-slate-900">{s.studentName}</td>
+                    <td className="text-neutral-400">{i + 1}</td>
+                    <td className="font-medium text-neutral-900">{s.studentName}</td>
                     <td>{s.studentEmail}</td>
                     <td>{formatDate(s.enrolledAt)}</td>
                   </tr>
@@ -214,15 +212,15 @@ function PdfUploadModal({ classId, onClose, onSaved }) {
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
-            className={`flex w-full flex-col items-center justify-center rounded-lg border-2 border-dashed px-4 py-6 text-center transition hover:border-brand-400 hover:bg-brand-50/40 ${errors.file ? 'border-red-300' : 'border-slate-300'}`}
+            className={`flex w-full flex-col items-center justify-center rounded-md border border-dashed px-4 py-6 text-center transition-colors hover:border-neutral-900 hover:bg-neutral-50 ${errors.file ? 'border-red-500' : 'border-neutral-300'}`}
           >
-            <FileUp className="h-8 w-8 text-slate-400" />
+            <FileUp className="h-8 w-8 text-neutral-400" />
             {file ? (
-              <span className="mt-2 text-sm font-medium text-slate-700">
-                {file.name} <span className="font-normal text-slate-400">({formatFileSize(file.size)})</span>
+              <span className="mt-2 text-sm font-medium text-neutral-700">
+                {file.name} <span className="font-normal text-neutral-400">({formatFileSize(file.size)})</span>
               </span>
             ) : (
-              <span className="mt-2 text-sm text-slate-500">Click to choose a PDF (max 20 MB)</span>
+              <span className="mt-2 text-sm text-neutral-500">Click to choose a PDF (max 20 MB)</span>
             )}
           </button>
           <input ref={fileRef} type="file" accept="application/pdf,.pdf" className="hidden" onChange={pickFile} />

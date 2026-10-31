@@ -4,7 +4,7 @@ import toast from 'react-hot-toast'
 import api, { errorMessage, fieldErrors } from '../../api/client'
 import { Badge, ConfirmDialog, EmptyState, Field, Input, Modal, PageHeader, PageLoader, SearchInput, Select, Spinner, Textarea } from '../../components/ui'
 import { useApi } from '../../hooks/useApi'
-import { formatDate, formatMoney } from '../../utils/format'
+import { formatDate, formatMoney, plural } from '../../utils/format'
 import { rules, validate } from '../../utils/validate'
 
 export default function ManageClasses() {
@@ -68,8 +68,8 @@ export default function ManageClasses() {
       />
 
       <div className="card">
-        <div className="flex flex-col gap-3 border-b border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm text-slate-500">{filtered.length} classes</p>
+        <div className="flex flex-col gap-3 border-b border-neutral-200 px-5 py-3.5 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-neutral-500">{plural(filtered.length, 'class', 'classes')}</p>
           <SearchInput value={query} onChange={setQuery} placeholder="Search classes..." />
         </div>
         {loading ? (
@@ -90,23 +90,23 @@ export default function ManageClasses() {
                   <th className="text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-neutral-200">
                 {filtered.map((c) => (
                   <tr key={c.id}>
                     <td>
-                      <p className="font-medium text-slate-900">{c.name}</p>
-                      <p className="text-xs text-slate-500">
+                      <p className="font-medium text-neutral-900">{c.name}</p>
+                      <p className="text-xs text-neutral-500">
                         {c.courseCode}
                         {c.schedule ? ` · ${c.schedule}` : ''}
                       </p>
                     </td>
                     <td>
-                      <button onClick={() => copyCode(c.enrollmentCode)} className="inline-flex items-center gap-1.5 rounded-md bg-slate-100 px-2 py-1 font-mono text-xs text-slate-700 hover:bg-slate-200" title="Copy code">
+                      <button onClick={() => copyCode(c.enrollmentCode)} className="code-chip" title="Copy code">
                         {c.enrollmentCode} <Copy className="h-3 w-3" />
                       </button>
                     </td>
                     <td>
-                      <select className="input w-48 py-1.5" value={c.teacherId || ''} onChange={(e) => assignTeacher(c, e.target.value)} aria-label="Assign teacher">
+                      <select className="input w-40 py-1.5" value={c.teacherId || ''} onChange={(e) => assignTeacher(c, e.target.value)} aria-label="Assign teacher">
                         <option value="">— Unassigned —</option>
                         {teachers.map((t) => (
                           <option key={t.id} value={t.id}>
@@ -116,7 +116,7 @@ export default function ManageClasses() {
                       </select>
                     </td>
                     <td>
-                      <button className="inline-flex items-center gap-1 text-brand-600 hover:underline" onClick={() => setRosterFor(c)}>
+                      <button className="link inline-flex items-center gap-1" onClick={() => setRosterFor(c)}>
                         <Users className="h-4 w-4" /> {c.studentCount}
                       </button>
                     </td>
@@ -126,7 +126,7 @@ export default function ManageClasses() {
                       <button className="btn-ghost" onClick={() => setEditing(c)} aria-label="Edit">
                         <Pencil className="h-4 w-4" />
                       </button>
-                      <button className="btn-ghost text-red-500 hover:bg-red-50 hover:text-red-600" onClick={() => setToDelete(c)} aria-label="Delete">
+                      <button className="btn-icon-danger" onClick={() => setToDelete(c)} aria-label="Delete">
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </td>
@@ -259,8 +259,8 @@ function ClassForm({ cls, teachers, onClose, onSaved }) {
           <Input value={values.enrollmentCode} onChange={set('enrollmentCode')} error={errors.enrollmentCode} className="font-mono uppercase" />
         </Field>
         <div className="flex items-end pb-2">
-          <label className="flex items-center gap-2 text-sm text-slate-700">
-            <input type="checkbox" className="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" checked={values.active} onChange={set('active')} />
+          <label className="flex items-center gap-2 text-sm text-neutral-700">
+            <input type="checkbox" className="checkbox" checked={values.active} onChange={set('active')} />
             Open for enrollment
           </label>
         </div>
@@ -292,10 +292,10 @@ function RosterModal({ cls, onClose }) {
                 <th>Enrolled</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-neutral-200">
               {students.map((s) => (
                 <tr key={s.id}>
-                  <td className="font-medium text-slate-900">{s.studentName}</td>
+                  <td className="font-medium text-neutral-900">{s.studentName}</td>
                   <td>{s.studentEmail}</td>
                   <td>{formatDate(s.enrolledAt)}</td>
                 </tr>

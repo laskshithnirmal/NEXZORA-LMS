@@ -30,30 +30,31 @@ export default function JoinClassForm({ onJoined }) {
   }
 
   return (
-    <form onSubmit={submit} noValidate className="card p-5">
+    <form onSubmit={submit} noValidate className="card flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between">
       <div className="flex items-start gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
-          <KeyRound className="h-5 w-5" />
-        </div>
+        <KeyRound className="mt-0.5 h-5 w-5 shrink-0 text-neutral-400" />
         <div>
-          <h2 className="font-semibold text-slate-900">Join a class</h2>
-          <p className="text-sm text-slate-500">Enter the enrollment code given by your teacher or the administration.</p>
+          <h2 className="card-title">Join a class</h2>
+          <p className="mt-0.5 text-sm text-neutral-500">Enter the enrollment code given by your teacher or the administration.</p>
         </div>
       </div>
-      <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-        <input
-          className={`input font-mono uppercase tracking-wider ${error ? 'input-error' : ''}`}
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-          placeholder="e.g. SE2026A"
-          maxLength={20}
-          aria-label="Enrollment code"
-        />
-        <button type="submit" className="btn-primary shrink-0" disabled={busy}>
-          {busy && <Spinner className="h-4 w-4" />} Join class
-        </button>
+      <div className="md:w-96">
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <input
+            className={`input font-mono uppercase tracking-wider placeholder:normal-case placeholder:tracking-normal ${error ? 'input-error' : ''}`}
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            placeholder="e.g. SE2026A"
+            maxLength={20}
+            aria-label="Enrollment code"
+            aria-invalid={Boolean(error)}
+          />
+          <button type="submit" className="btn-primary shrink-0" disabled={busy}>
+            {busy && <Spinner className="h-4 w-4" />} Join class
+          </button>
+        </div>
+        {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
       </div>
-      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
     </form>
   )
 }
