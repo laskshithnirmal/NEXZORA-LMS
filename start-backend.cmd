@@ -23,5 +23,5 @@ if errorlevel 1 (
 )
 
 echo Starting backend on http://localhost:8080 ...
-call mvnw.cmd spring-boot:run
+call "%~dp0backend\mvnw.cmd" spring-boot:run
 pause
