@@ -110,3 +110,9 @@ nbbuild/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# =========================
+# Local project documentation (never commit)
+# =========================
+documentation/verification/
+documentation/backup_*/
